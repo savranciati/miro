@@ -1,2 +1,2 @@
 # miro
-Source code for miro R package.
+Source code for *miro* R package.
