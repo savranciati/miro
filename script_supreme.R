@@ -89,6 +89,11 @@ data[9,] <- c(1,
               0,0,1,0,1,
               1,1)
 
+source('manet.R')
+source('mixt_Bern.R')
+source('mixt_probit.R')
+source('miro_event.R')
+
 ###############################################################
 ######################### mixt_probit ###############################
 ###############################################################
@@ -121,7 +126,8 @@ BIC_mcmc.mixtprobit
 ###############################################################
 
 maxT=10000
-### manet
+
+### mixtbern
 mod_mixtbern <- fmm.no_over(data,3,maxT=maxT)
 burn.in=round(maxT*0.9,0)
 post.prob.z=apply(mod_mixtbern$prob.z.chain[burn.in:maxT,,],c(2,3),mean)
@@ -164,234 +170,24 @@ t(round(apply(mod_manet$pi.greco.chain[burn.in:maxT,,],c(2,3),median),3))
 t(round(apply(mod_manet$pi.greco.chain[burn.in:maxT,,],c(2,3),sd),3))
 
 ###############################################################
-##################### manet+cov ###############################
+##################### miro_event ##############################
 ###############################################################
 maxT=10000
-### solo event covariate: topic
-require(dummies)
-source('manet+cov_mean_event.R')
+### only event covariate: topic
 matW=dummy(topic,sep=".")
 matW=cbind(rep(1,d),matW[,-1])
-mod_manetcov <- manet.cov_mean(data,W=matW,K=2,maxT=maxT)
+mod_miro <- miro_mean(data,W=matW,K=2,maxT=maxT)
 
 # post
 burn.in=round(maxT*0.9,0)
-post.prob.z_star=apply(mod_manetcov$prob.z_star.chain[burn.in:maxT,,],c(2,3),mean)
+post.prob.z_star=apply(mod_miro$prob.z_star.chain[burn.in:maxT,,],c(2,3),mean)
 post.prob.z_star=post.prob.z_star/rowSums(post.prob.z_star)
-clasf.manetcov=apply(post.prob.z_star,1,which.max)
-table(clasf.manetcov)
+clasf.miro=apply(post.prob.z_star,1,which.max)
+table(clasf.miro)
 
-n.par.manetcov <- 4+14
-AICM.manetcov=-2*(mean(mod_manetcov$log.lik[burn.in:maxT],na.rm=TRUE)-var(mod_manetcov$log.lik[burn.in:maxT],na.rm=TRUE))
-BIC_mcmc.manetcov=-2*max(mod_manetcov$log.lik[burn.in:maxT],na.rm=TRUE)+n.par.manetcov*log(n*d)
+n.par.miro <- 4+14
+AICM.miro=-2*(mean(mod_miro$log.lik[burn.in:maxT],na.rm=TRUE)-var(mod_miro$log.lik[burn.in:maxT],na.rm=TRUE))
+BIC_mcmc.miro=-2*max(mod_miro$log.lik[burn.in:maxT],na.rm=TRUE)+n.par.miro*log(n*d)
 ### the lower the better
-AICM.manetcov
-BIC_mcmc.manetcov
-
-t(round(apply(mod_manetcov$gamma.chain[,burn.in:maxT],1,mean),3))
-t(round(apply(mod_manetcov$gamma.chain[,burn.in:maxT],1,median),3))
-t(round(apply(mod_manetcov$gamma.chain[,burn.in:maxT],1,sd),3))
-
-par(mfrow=c(3,3))
-plot(mod_manetcov$gamma.chain[1,burn.in:maxT],type="l")
-abline(h=mean(mod_manetcov$gamma.chain[1,burn.in:maxT]),col=2,lwd=2)
-plot(mod_manetcov$gamma.chain[2,burn.in:maxT],type="l")
-abline(h=mean(mod_manetcov$gamma.chain[2,burn.in:maxT]),col=2,lwd=2)
-plot(mod_manetcov$gamma.chain[3,burn.in:maxT],type="l")
-abline(h=mean(mod_manetcov$gamma.chain[3,burn.in:maxT]),col=2,lwd=2)
-plot(mod_manetcov$gamma.chain[4,burn.in:maxT],type="l")
-abline(h=mean(mod_manetcov$gamma.chain[4,burn.in:maxT]),col=2,lwd=2)
-plot(mod_manetcov$gamma.chain[5,burn.in:maxT],type="l")
-abline(h=mean(mod_manetcov$gamma.chain[5,burn.in:maxT]),col=2,lwd=2)
-plot(mod_manetcov$gamma.chain[6,burn.in:maxT],type="l")
-abline(h=mean(mod_manetcov$gamma.chain[6,burn.in:maxT]),col=2,lwd=2)
-plot(mod_manetcov$gamma.chain[7,burn.in:maxT],type="l")
-abline(h=mean(mod_manetcov$gamma.chain[7,burn.in:maxT]),col=2,lwd=2)
-par(mfrow=c(1,1))
-
-par(mfrow=c(3,3))
-plot(mod_manetcov$gamma.chain[8,burn.in:maxT],type="l")
-abline(h=mean(mod_manetcov$gamma.chain[8,burn.in:maxT]),col=2,lwd=2)
-plot(mod_manetcov$gamma.chain[9,burn.in:maxT],type="l")
-abline(h=mean(mod_manetcov$gamma.chain[9,burn.in:maxT]),col=2,lwd=2)
-plot(mod_manetcov$gamma.chain[10,burn.in:maxT],type="l")
-abline(h=mean(mod_manetcov$gamma.chain[10,burn.in:maxT]),col=2,lwd=2)
-plot(mod_manetcov$gamma.chain[11,burn.in:maxT],type="l")
-abline(h=mean(mod_manetcov$gamma.chain[11,burn.in:maxT]),col=2,lwd=2)
-plot(mod_manetcov$gamma.chain[12,burn.in:maxT],type="l")
-abline(h=mean(mod_manetcov$gamma.chain[12,burn.in:maxT]),col=2,lwd=2)
-plot(mod_manetcov$gamma.chain[13,burn.in:maxT],type="l")
-abline(h=mean(mod_manetcov$gamma.chain[13,burn.in:maxT]),col=2,lwd=2)
-plot(mod_manetcov$gamma.chain[14,burn.in:maxT],type="l")
-abline(h=mean(mod_manetcov$gamma.chain[14,burn.in:maxT]),col=2,lwd=2)
-par(mfrow=c(1,1))
-
-
-plot(seq(1,7),t(round(apply(mod_manetcov$gamma.chain[,burn.in:maxT],1,mean),3))[1:7],col=1, type="b",ylim=c(-5,5))
-lines(seq(1,7),t(round(apply(mod_manetcov$gamma.chain[,burn.in:maxT],1,mean),3))[8:14],col=2, type="b")
-lines(seq(1,7),t(round(apply(mod_manetcov$gamma.chain[,burn.in:maxT],1,mean),3))[1:7]*0.5+t(round(apply(mod_manetcov$gamma.chain[,burn.in:maxT],1,mean),3))[8:14]*0.5,col=4, type="b")
-
-differences <- abs(t(round(apply(mod_manetcov$gamma.chain[,burn.in:maxT],1,mean),3))[1:7]-t(round(apply(mod_manetcov$gamma.chain[,burn.in:maxT],1,mean),3))[8:14])
-diff.data <- data.frame(differences,topic=sort(unique(topic)))
-buff <- data.frame(topic)
-topic2 <- merge(buff,diff.data,by="topic")
-sorted.effects <- topic2[order(topic2$differences),]
-
-#### PLOT manet+cov results
-load("~/Desktop/temp manet+cov/dati reali manet+cov/Supreme Court dataset/supreme.RData")
-require(ggplot2)
-require(reshape2)
-library(forcats)
-detailed.topic <- c("PresElect.",
-                    "IllegalSrc.1",
-                    "IllegalSrc.2",
-                    "IllegalSrc.3",
-                    "SeatBelts",
-                    "StayExec",
-                    "Federalism",
-                    "CleanAirAct",
-                    "CleanWater",
-                    "CannabisHealt",
-                    "UnitedFood",
-                    "NYTcopyrights",
-                    "VotingRights",
-                    "T.VI.Disabil",
-                    "PGAvsHandicap",
-                    "Immgr.Jurisdic",
-                    "DeportCrimeAli",
-                    "DetainCrimeAli",
-                    "Citizenship",
-                    "LegalAidPoor",
-                    "Privacy",
-                    "FreeSpeech",
-                    "CampaignFinance",
-                    "TobaccoAds",
-                    "LaborRights",
-                    "PropertyRights")
-topic.merge <- data.frame(topic,detailed.topic)
-topic3 <- unique(merge(topic.merge,sorted.effects,by="topic",all=FALSE))
-rownames(topic3) <- NULL
-colnames(data) <- factor(topic)
-melted.data <- melt(data)
-names(melted.data) <- c("Justice","topic","Voting")
-levels(melted.data$topic)
-levels(topic3$topic)
-topic3$ordine <- c(rep(4,3),
-                   rep(2,5),
-                   rep(3,6),
-                   rep(5,4),
-                   rep(7,2),
-                   rep(1,1),
-                   rep(6,5))
-topic3 <- topic3[order(topic3$ordine),]
-rep.topic3 <- topic3[rep(seq_len(nrow(topic3)), each=9),]
-rownames(rep.topic3) <- NULL
-aug.data <- data.frame(melted.data,rep.topic3)
-aug.data$topic.1 <- NULL
-aug.data$ordine <- NULL
-aug.data$det <- factor(aug.data$detailed.topic,ordered = TRUE, levels = levels(aug.data$detailed.topic))
-aug.data$just <- factor(aug.data$Justice,ordered = TRUE, levels = levels(aug.data$Justice))
-aug.data$vot <- factor(aug.data$Voting)
-
-main_plot=ggplot(aug.data, aes(x=reorder(det,differences),
-                     y=reorder(just,differences),
-                     fill=reorder(vot,differences)))+
-  theme(panel.background = element_blank(),
-        axis.text.x = element_text(angle = 90, hjust = 1, size=12),
-        axis.text.y = element_text(hjust = 1, size=11))+
-  scale_fill_manual(values=c("black","white"))+
-  geom_tile()+xlab("Topic") + ylab("Justice")+
-  labs(fill = "Voting")+
-  geom_hline(yintercept=4.5, lwd=1.25, linetype=1, color = "white")+
-  geom_hline(yintercept=6.5, lwd=1.25, linetype=1, color = "white")
-main_plot
-
-probs1 <- (t(round(apply(mod_manetcov$gamma.chain[,burn.in:maxT],1,mean),3)))[1:7]
-probs2 <- (t(round(apply(mod_manetcov$gamma.chain[,burn.in:maxT],1,mean),3)))[8:14]
-propro <- c(probs1,probs2)
-cluster <- factor(c(rep(1,7),rep(2,7)))
-
-a <- cumsum(c(3,5,5,4,6,1,2))
-midpoints <- c(1.5,a[-length(a)] + diff(a)/2)
-midpoints <- (midpoints/26)*7
-midpoints <- round(midpoints,3)
-probs <- data.frame(topic=rep(diff.data$topic,2),
-                    propro,
-                    ordine=rep(c(1,3,5,4,7,6,2),2),
-                    cluster=cluster,
-                    ticks=midpoints)
-                    # ticks=round((cumsum(c(3,5,5,4,6,1,2))/26)*7,2))
-probs$sorted.prob <- probs$propro[order(probs$ordine)]
-probs$sorted.prob[1:7] <- probs$propro[order(probs$ordine[1:7])]
-probs$sorted.prob[8:14] <- probs$propro[order(probs$ordine[8:14])+7]
-etic <- as.character(unique(probs$topic[order(probs$ordine)]))
-
-ggplot(probs, aes(x=ticks,y=sorted.prob, group=cluster)) +
-         geom_line(aes(linetype = cluster))+
-         geom_point(aes(shape=cluster))+
-      theme(axis.title.y = element_text(size=15,margin=margin(1,25,1,1)),
-        axis.text.x = element_text(angle = 90, hjust = 1, size=13),
-      axis.text.y = element_text(hjust = 1, size=13))+
-      xlab("Category") + ylab(expression(gamma))+
-      scale_x_discrete(limits=probs$ticks[1:7],
-                       labels=etic,
-                       expand = expand_scale(mult=c(0.09,0.05)))+
-      scale_y_continuous(limits=c(-4.2,4.2),
-                         breaks=seq(-4.2,4.2,length.out=7),
-                         expand=c(0,0.03))
-      
-
-
-
-      
-  
-df <- as.data.frame(data)
-library(igraph)
-temp=graph.incidence(t(df),mode=c("all"))
-
-vert.shp <- c(rep("square",26),rep("circle",9))
-vert.col <- rep(0,35)
-vert.frm <- rep(0,35)
-vert.size <- rep(0,35)
-vert.labcol <-  rep(rgb(0,0,0,1),35)
-vert.lab <- c(rep("",26),
-              substr(justices.names,1,3))
-
-vert.labfont <- c(rep(1,26),rep(2,9))
-vert.col[1:26] <- rep(rgb(0.5,0.5,0.5,0.5),26)
-vert.size[1:26] <- 9
-vert.size[27:35] <- 16
-vert.labcol[1:35]<-rep(rgb(0,0,0,1),35)
-vert.frm[1:35] <- rep(rgb(0,0,0,1),35)
-
-set.seed(100)
-png("judg.png",height=1000,width=1300,units="px",res=96)
-plot.igraph(temp,layout=layout.auto,
-            vertex.color=vert.col,
-            vertex.shape=vert.shp,
-            vertex.frame.color=vert.frm,
-            vertex.size=vert.size,
-            vertex.label=vert.lab,
-            vertex.label.color=vert.labcol,
-            label.font=vert.labfont,
-            vertex.label.cex=1.2)
-dev.off()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+AICM.miro
+BIC_mcmc.miro
