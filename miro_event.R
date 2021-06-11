@@ -15,7 +15,7 @@ require(truncnorm)
 # maxT, number of MCMC iterations (default is 5000)
 # seed
 # method, "min" or "max", default is "min"
-manet.cov_mean<-function(y,W,K,prior.var=5,maxT=5000,seed=42)
+miro_mean<-function(y,W,K,prior.var=5,maxT=5000,seed=42)
 {
   set.seed(seed)
   d=ncol(y) ## number of events
